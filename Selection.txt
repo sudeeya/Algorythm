@@ -1,0 +1,62 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#define N 10
+
+struct meeting {
+	int start;
+	int end;
+};
+
+int selection(struct meeting M[N], struct meeting A[N], int n);
+void sort(struct meeting M[N], int n);
+
+int main() {
+	int n, i;
+	struct meeting M[N], A[N];
+	printf("\nEnter the number of meetings\n");
+	scanf("%d", &n);
+	printf("\nEnter the start time and end time for every meeting\n");
+	for (i = 0; i < n; ++i)
+		scanf("%d %d", &M[i].start, &M[i].end);
+	printf("\nSelected meetings:\n");
+	for (i = 0; i < selection(M, A, n); ++i)
+		printf("%d %d\n", A[i].start, A[i].end);
+	printf("\n");
+	return 0;
+}
+
+int selection(struct meeting M[N], struct meeting A[N], int n) {
+	int i, cntr = 1;
+	struct meeting tmp;
+	sort(M, n);
+	A[0].start = M[0].start;
+	A[0].end = M[0].end;
+	tmp.end = A[0].end;
+	for (i = 1; i < n; ++i) {
+		if (M[i].start >= tmp.end) {
+			A[cntr].start = M[i].start;
+			A[cntr].end = M[i].end;
+			tmp.end = A[cntr].end;
+			++cntr;
+		}
+	}
+	return cntr;
+}
+
+void sort(struct meeting M[N], int n) {
+	int i , j;
+	struct meeting tmp;
+	for (i = n - 1; i >= 0; --i) {
+		for (j = 0; j < i; ++j) {
+			if (M[j].end > M[j + 1].end) {
+				tmp.start = M[j].start;
+				tmp.end = M[j].end;
+				M[j].start = M[j + 1].start;
+				M[j].end = M[j + 1].end;
+				M[j + 1].start = tmp.start;
+				M[j + 1].end = tmp.end;
+			}
+		}
+	}
+}

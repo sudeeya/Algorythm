@@ -1,0 +1,70 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#define N 10
+#define INF 100
+
+struct edge {
+	int start;
+	int end;
+};
+
+void prim(int G[N][N], struct edge E[N], int slct[N], int n);
+
+int main() {
+	int n, i, j, k;
+	int slct[N], G[N][N], M[N][N];
+	struct edge E[N];
+	printf("\nEnter number of vertices\n");
+	scanf("%d", &n);
+	for (i = 0; i < n; ++i)
+		slct[i] = 0;
+	slct[0] = 1;
+	for (i = 0; i < n; ++i)
+		for (j = 0; j < n; ++j)
+			M[i][j] = INF;
+	printf("\nEnter weight matrix\n");
+	for (i = 0; i < n; ++i)
+		for (j = 0; j < n; ++j)
+			scanf("%d", &G[i][j]);
+	prim(G, E, slct, n);
+	for (k = 0; k < n - 1; ++k)
+		for (i = 0; i < n; ++i)
+			for (j = 0; j < n; ++j)
+				if ((i == E[k].start && j == E[k].end) || (j == E[k].start && i == E[k].end))
+					M[i][j] = G[i][j];
+	printf("\nMinimum Spanning Tree Matrix:\n");
+	for (i = 0; i < n; ++i) {
+		for (j = 0; j < n; ++j)
+			printf("%d ", M[i][j]);
+		printf("\n");
+	}
+	printf("\nEdges of Minimum Spanning Tree:\n");
+	for (i = 0; i < n - 1; ++i)
+		printf("%d-%d\n", E[i].start, E[i].end);
+	printf("\n");
+	return 0;
+}
+
+void prim(int G[N][N], struct edge E[N], int slct[N], int n) {
+	int i, j, k = 0, minw, rn, cn;
+	while (k < n - 1) {
+		minw = INF;
+		rn = 0;
+		cn = 0;
+		for (i = 0; i < n; ++i) {
+			if (slct[i])
+				for (j = 0; j < n; ++j)
+					if (!slct[j] && (G[i][j] < INF))
+						if (minw > G[i][j]) {
+							minw = G[i][j];
+							rn = i;
+							cn = j;
+						}
+		}
+		E[k].start = rn;
+		E[k].end = cn;
+		slct[cn] = 1;
+		++k;
+	}
+}

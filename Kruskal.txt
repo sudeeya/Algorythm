@@ -1,0 +1,137 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdlib.h>
+#define N 10
+#define NE 45
+#define INF 100
+
+struct edge {
+	int start;
+	int end;
+	int weight;
+};
+
+void kruskal(struct edge E[NE], int group[N], struct edge slct[N], int n, int ne);
+void toedge(int G[N][N], struct edge E[NE], int n);
+void sort(struct edge E[NE], int ne);
+
+int main() {
+	int n, ne, i, j, k, cntr = 0;
+	int G[N][N], M[N][N], group[N];
+	struct edge E[NE], slct[N];
+	printf("\nEnter number of vertices\n");
+	scanf("%d", &n);
+	for (i = 0; i < n; ++i)
+		group[i] = 0;
+	for (i = 0; i < n; ++i)
+		for (j = 0; j < n; ++j)
+			M[i][j] = INF;
+	printf("\nEnter weight matrix\n");
+	for (i = 0; i < n; ++i)
+		for (j = 0; j < n; ++j) {
+			scanf("%d", &G[i][j]);
+			if (G[i][j] < INF)
+				++cntr;
+		}
+	ne = cntr / 2;
+	toedge(G, E, n);
+	sort(E, ne);
+	kruskal(E, group, slct, n, ne);
+	for (k = 0; k < n - 1; ++k)
+		for (i = 0; i < n; ++i)
+			for (j = 0; j < n; ++j)
+				if ((i == slct[k].start && j == slct[k].end) || (j == slct[k].start && i == slct[k].end))
+					M[i][j] = G[i][j];
+	printf("\nMinimum Spanning Tree Matrix:\n");
+	for (i = 0; i < n; ++i) {
+		for (j = 0; j < n; ++j)
+			printf("%d ", M[i][j]);
+		printf("\n");
+	}
+	printf("\nEdges of Minimum Spanning Tree:\n");
+	for (i = 0; i < n - 1; ++i) {
+		printf("%d %d\n", slct[i].start, slct[i].end);
+	}
+	printf("\n");
+	return 0;
+}
+
+void kruskal(struct edge E[NE], int group[N], struct edge slct[N], int n, int ne) {
+	int i, j, k = 0, colour = 1, tmpc;
+	while (k < n - 1) {
+		if (!k) {
+			slct[k].start = E[k].start;
+			slct[k].end = E[k].end;
+			group[E[k].start] = colour;
+			group[E[k].end] = colour;
+			++colour;
+		}
+		else {
+			for (i = 0; i < ne; ++i) {
+				if (!group[E[i].start] && !group[E[i].end]) {
+					slct[k].start = E[i].start;
+					slct[k].end = E[i].end;
+					group[E[i].start] = colour;
+					group[E[i].end] = colour;
+					++colour;
+					break;
+				}
+				else if (!group[E[i].start] && group[E[i].end]) {
+					slct[k].start = E[i].start;
+					slct[k].end = E[i].end;
+					group[E[i].start] = group[E[i].end];
+					break;
+				}
+				else if (group[E[i].start] && !group[E[i].end]) {
+					slct[k].start = E[i].start;
+					slct[k].end = E[i].end;
+					group[E[i].end] = group[E[i].start];
+					break;
+				}
+				else if ((group[E[i].start] && group[E[i].end]) && (group[E[i].start] != group[E[i].end])) {
+					slct[k].start = E[i].start;
+					slct[k].end = E[i].end;
+					tmpc = group[E[i].start];
+					for (j = 0; j < n; ++j) {
+						if (group[j] == tmpc)
+							group[j] = group[E[i].end];
+					}
+					break;
+				}
+			}
+		}
+		++k;
+	}
+}
+
+void toedge(int G[N][N], struct edge E[NE], int n) {
+	int i, j, k = 0;
+	for (i = 0; i < n; ++i)
+		for (j = i; j < n; ++j)
+			if (G[i][j] < INF) {
+				E[k].weight = G[i][j];
+				E[k].start = i;
+				E[k].end = j;
+				++k;
+			}
+}
+
+void sort(struct edge E[NE], int ne) {
+	int i, j;
+	struct edge tmp;
+	for (i = ne - 1; i >= 0; --i) {
+		for (j = 0; j < i; ++j) {
+			if (E[j].weight > E[j + 1].weight) {
+				tmp.start = E[j].start;
+				tmp.end = E[j].end;
+				tmp.weight = E[j].weight;
+				E[j].start = E[j + 1].start;
+				E[j].end = E[j + 1].end;
+				E[j].weight = E[j + 1].weight;
+				E[j + 1].start = tmp.start;
+				E[j + 1].end = tmp.end;
+				E[j + 1].weight = tmp.weight;
+			}
+		}
+	}
+}
